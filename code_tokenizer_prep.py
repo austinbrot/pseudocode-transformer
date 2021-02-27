@@ -9,7 +9,7 @@ from tokenizers.processors import TemplateProcessing
 t = Tokenizer(WordLevel(unk_token="[UNK]"))
 t.pre_tokenizer = Whitespace()
 
-trainer = WordLevelTrainer(special_tokens=["[PAD]","[CLS]","[UNK]"])
+trainer = WordLevelTrainer(special_tokens=["[UNK]","[PAD]","[CLS]"])
 t.post_processor = TemplateProcessing(
     single="[CLS] $A",
     # ,

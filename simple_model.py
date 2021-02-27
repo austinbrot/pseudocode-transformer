@@ -35,6 +35,10 @@ eval_data = dataset['eval'].map(
 model = transformers.EncoderDecoderModel.from_encoder_decoder_pretrained('bert-base-uncased','./decoder-bert')
 print(model.num_parameters())
 
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+model.to(device)
+print(device)
+
 # inp = text_tokenizer.encode('add 2 to i')
 # print(text_tokenizer.convert_ids_to_tokens(inp))
 # input_ids = torch.tensor(inp).unsqueeze(0)  # Batch size 1
@@ -52,9 +56,9 @@ training_args = Seq2SeqTrainingArguments(
     per_device_eval_batch_size=1,
     fp16=True, 
     output_dir="./",
-    logging_steps=1000,
+    logging_steps=500,
     save_steps=500,
-    eval_steps=7500,
+    eval_steps=500,
     warmup_steps=2000,
     # save_total_limit=3,
 )
