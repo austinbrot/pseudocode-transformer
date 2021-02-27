@@ -624,7 +624,7 @@ def main():
         )
         metrics["train_samples"] = min(max_train_samples, len(train_dataset))
 
-        trainer.log_metrics(metrics)
+        trainer.log(metrics)
         # trainer.save_metrics("train", metrics)
         # trainer.save_state()
 
