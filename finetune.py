@@ -640,8 +640,8 @@ def main():
             eval_dataset)
         metrics["eval_samples"] = min(max_val_samples, len(eval_dataset))
 
-        trainer.log_metrics("eval", metrics)
-        trainer.save_metrics("eval", metrics)
+        # trainer.log_metrics("eval", metrics)
+        # trainer.save_metrics("eval", metrics)
 
     if training_args.do_predict:
         logger.info("*** Test ***")
@@ -657,8 +657,8 @@ def main():
             test_dataset)
         metrics["test_samples"] = min(max_test_samples, len(test_dataset))
 
-        trainer.log_metrics("test", metrics)
-        trainer.save_metrics("test", metrics)
+        # trainer.log_metrics("test", metrics)
+        # trainer.save_metrics("test", metrics)
 
         if trainer.is_world_process_zero():
             if training_args.predict_with_generate:
