@@ -659,7 +659,8 @@ def main():
             test_dataset)
         metrics["test_samples"] = min(max_test_samples, len(test_dataset))
 
-        # trainer.log_metrics("test", metrics)
+        trainer.log(metrics)
+        print(metrics)
         # trainer.save_metrics("test", metrics)
 
         if trainer.is_world_process_zero():
