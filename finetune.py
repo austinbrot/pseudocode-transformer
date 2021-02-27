@@ -626,7 +626,7 @@ def main():
 
         # trainer.log_metrics("train", metrics)
         # trainer.save_metrics("train", metrics)
-        trainer.save_state()
+        # trainer.save_state()
 
     # Evaluation
     results = {}
