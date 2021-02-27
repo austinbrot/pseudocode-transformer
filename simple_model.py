@@ -1,22 +1,81 @@
 import numpy
 import torch
 import transformers
-from transformers import AutoTokenizer, pipeline
+from transformers import AutoTokenizer, pipeline, Seq2SeqTrainer, Seq2SeqTrainingArguments
 from tokenizers import Tokenizer
 import sys, os, shutil, re, argparse, json
-
-# config = transformers.GPT2Config.from_pretrained('gpt2-medium')
-# gpt2_decoder = transformers.GPT2Model(config)
-
-model = transformers.EncoderDecoderModel.from_encoder_decoder_pretrained('bert-base-uncased','./decoder-bert')
+from datasets import load_dataset
 
 text_tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 code_tokenizer = Tokenizer.from_file("code_tokenizer.json")
 
-nlp = pipeline('text2text-generation',model=model,tokenizer=text_tokenizer)
-output = nlp('add 2 to i',return_tensors=True)
-print(output[0]['generated_token_ids'].numpy())
-print(code_tokenizer.decode(output[0]['generated_token_ids'].numpy()))
+dataset = load_dataset('csv', delimiter="\t", data_files={'train':'tok-train-shuf.tsv',
+															'eval':'tok-eval.tsv','test':'tok-test.tsv'})
+
+def process_data_to_model_inputs(batch):
+  # tokenize the inputs and labels
+  inputs = text_tokenizer(batch["pseudo"])['input_ids']
+  outputs = [enc.ids for enc in code_tokenizer.encode_batch(batch["code"])]
+  batch["input_ids"] = inputs
+  batch["decoder_input_ids"] = outputs
+  batch["labels"] = outputs.copy()
+
+  return batch
+
+train_data = dataset['train'].map(
+    process_data_to_model_inputs, 
+    batched=True, 
+)
+
+eval_data = dataset['eval'].map(
+    process_data_to_model_inputs, 
+    batched=True, 
+)
+
+model = transformers.EncoderDecoderModel.from_encoder_decoder_pretrained('bert-base-uncased','./decoder-bert')
+print(model.num_parameters())
+
+# inp = text_tokenizer.encode('add 2 to i')
+# print(text_tokenizer.convert_ids_to_tokens(inp))
+# input_ids = torch.tensor(inp).unsqueeze(0)  # Batch size 1
+
+# outp = code_tokenizer.encode('i += 2 ;')
+# print(outp.tokens)
+# decoder_input_ids = torch.tensor(outp.ids).unsqueeze(0)
+# print(input_ids, input_ids.shape)
+# print(decoder_input_ids, decoder_input_ids.shape)
+
+training_args = Seq2SeqTrainingArguments(
+    predict_with_generate=True,
+    evaluation_strategy="steps",
+    per_device_train_batch_size=1,
+    per_device_eval_batch_size=1,
+    fp16=True, 
+    output_dir="./",
+    logging_steps=1000,
+    save_steps=500,
+    eval_steps=7500,
+    warmup_steps=2000,
+    # save_total_limit=3,
+)
+
+trainer = Seq2SeqTrainer(
+    model=model,
+    args=training_args,
+    # compute_metrics=compute_metrics,
+    train_dataset=train_data,
+    eval_dataset=eval_data,
+)
+trainer.train()
+
+
+
+
+
+# nlp = pipeline('text2text-generation',model=model,tokenizer=text_tokenizer)
+# output = nlp('add 2 to i',return_tensors=True)
+# print(output[0]['generated_token_ids'].numpy())
+# print(code_tokenizer.decode(output[0]['generated_token_ids'].numpy()))
 
 # inp = text_tokenizer.encode('add 2 to i')
 # input_ids = torch.tensor(inp).unsqueeze(0)  # Batch size 1
