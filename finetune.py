@@ -640,7 +640,7 @@ def main():
             eval_dataset)
         metrics["eval_samples"] = min(max_val_samples, len(eval_dataset))
 
-        trainer.log_metrics(metrics)
+        trainer.log(metrics)
         # trainer.save_metrics("eval", metrics)
 
     if training_args.do_predict:
