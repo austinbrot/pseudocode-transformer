@@ -9,14 +9,14 @@ from tokenizers.processors import TemplateProcessing
 t = Tokenizer(WordLevel(unk_token="[UNK]"))
 t.pre_tokenizer = Whitespace()
 
-trainer = WordLevelTrainer(special_tokens=["[UNK]","[PAD]","[CLS]"])
+trainer = WordLevelTrainer(special_tokens=["[UNK]","[PAD]","[CLS]","[SEP]"])
 t.post_processor = TemplateProcessing(
-    single="[CLS] $A",
+    single="[CLS] $A [SEP]",
     # ,
     # pair="[CLS] $A [SEP] $B:1 [SEP]:1",
     special_tokens=[
         ("[CLS]", 2),
-        # ("[SEP]", 3),
+        ("[SEP]", 3),
     ]
 )
 

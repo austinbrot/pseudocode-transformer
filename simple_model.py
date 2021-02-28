@@ -9,27 +9,32 @@ from datasets import load_dataset
 text_tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 code_tokenizer = Tokenizer.from_file("code_tokenizer.json")
 
-dataset = load_dataset('csv', delimiter="\t", data_files={'train':'tok-train-shuf.tsv',
-															'eval':'tok-eval.tsv','test':'tok-test.tsv'})
+dataset = load_dataset('csv', delimiter="\t", data_files={'train':'tok-train-shuf.tsv','eval':'tok-eval.tsv','test':'tok-test.tsv'}, download_mode="force_redownload")
 
 def process_data_to_model_inputs(batch):
-  # tokenize the inputs and labels
-  inputs = text_tokenizer(batch["pseudo"])['input_ids']
-  outputs = [enc.ids for enc in code_tokenizer.encode_batch(batch["code"])]
-  batch["input_ids"] = inputs
-  batch["decoder_input_ids"] = outputs
-  batch["labels"] = outputs.copy()
+    # tokenize the inputs and labels
+    inputs = text_tokenizer(batch["pseudo"],padding="max_length", truncation=True, max_length=128)['input_ids']
+    outputs = [enc.ids for enc in code_tokenizer.encode_batch(batch["code"])]
+    for i in range(len(outputs)):
+        pad_token_id = code_tokenizer.token_to_id('[PAD]')
+        outputs[i] += [pad_token_id]*(128 - len(outputs[i]))
+    batch["input_ids"] = inputs
+    batch["decoder_input_ids"] = outputs
+    batch["labels"] = outputs.copy()
+    batch["labels"] = [[-100 if token == pad_token_id else token for token in labels] for labels in batch["labels"]]
 
-  return batch
+    return batch
 
 train_data = dataset['train'].map(
     process_data_to_model_inputs, 
-    batched=True, 
+    batched=True,
+    load_from_cache_file=False 
 )
 
 eval_data = dataset['eval'].map(
     process_data_to_model_inputs, 
     batched=True, 
+    load_from_cache_file=False
 )
 
 model = transformers.EncoderDecoderModel.from_encoder_decoder_pretrained('bert-base-uncased','./decoder-bert')
@@ -37,7 +42,6 @@ print(model.num_parameters())
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 model.to(device)
-print(device)
 
 # inp = text_tokenizer.encode('add 2 to i')
 # print(text_tokenizer.convert_ids_to_tokens(inp))
