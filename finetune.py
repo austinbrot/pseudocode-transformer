@@ -37,8 +37,7 @@ from transformers import (
     AutoTokenizer,
     DataCollatorForSeq2Seq,
     HfArgumentParser,
-    MBartTokenizer,
-    MBartTokenizerFast,
+    EarlyStoppingCallback,
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
     default_data_collator,
@@ -476,6 +475,9 @@ def main():
         result = {k: round(v, 4) for k, v in result.items()}
         return result
 
+    # Set up early stopping
+    stopper = EarlyStoppingCallback(5)
+
     # Initialize our Trainer
     trainer = Seq2SeqTrainer(
         model=model,
@@ -485,6 +487,7 @@ def main():
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics if training_args.predict_with_generate else None,
+        callbacks=[stopper],
     )
 
     # Training
