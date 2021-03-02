@@ -476,7 +476,7 @@ def main():
         return result
 
     # Set up early stopping
-    stopper = EarlyStoppingCallback(3)
+    # stopper = EarlyStoppingCallback(3)
 
     # Initialize our Trainer
     trainer = Seq2SeqTrainer(
@@ -487,7 +487,7 @@ def main():
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics if training_args.predict_with_generate else None,
-        callbacks=[stopper],
+        # callbacks=[stopper],
     )
 
     # Training
@@ -551,7 +551,6 @@ def main():
                 test_preds = [pred.strip() for pred in test_preds]
                 output_test_preds_file = os.path.join(
                     training_args.output_dir, "test_preds_seq2seq.txt")
-                print("\n".join(test_preds))
                 with open(output_test_preds_file, "w") as writer:
                     writer.write("\n".join(test_preds))
 
