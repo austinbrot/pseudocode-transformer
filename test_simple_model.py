@@ -27,8 +27,8 @@ for i, line in enumerate(f):
     input_ids = torch.tensor(text_tokenizer.encode(src)).unsqueeze(0)
     generated = model.generate(input_ids, decoder_start_token_id=model.config.decoder.bos_token_id, num_beams=num_beams)
     translation = code_tokenizer.decode(generated.numpy()[0])
-    # print(tgt, translation)
-    metric.add_batch(predictions=[translation],references=[[tgt]])
+    print("GOLD: {} -------- MODEL: {}".format(tgt, translation))
+    # metric.add_batch(predictions=[translation],references=[[tgt]])
 
-print(metric.compute())
+#print(metric.compute())
 f.close()	
