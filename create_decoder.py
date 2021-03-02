@@ -13,6 +13,8 @@ config = BertConfig(vocab_size=code_vocab_size)
 model = BertModel(config)
 config.is_decoder = True
 config.decoder_start_token_id = code_tokenizer.token_to_id('[CLS]')
+config.bos_token_id = code_tokenizer.token_to_id('[CLS]')
+config.eos_token_id = code_tokenizer.token_to_id('[SEP]')
 config.pad_token_id = code_tokenizer.token_to_id('[PAD]')
 
 model.save_pretrained('decoder-bert')

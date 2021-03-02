@@ -59,10 +59,10 @@ training_args = Seq2SeqTrainingArguments(
     per_device_train_batch_size=1,
     per_device_eval_batch_size=1,
     fp16=True, 
-    output_dir="./checkpoints/",
+    output_dir="./checkpoints-new/",
     logging_steps=5000,
     save_steps=5000,
-    eval_steps=5000,
+    eval_steps=10000,
     warmup_steps=2000,
     save_total_limit=5,
 )
