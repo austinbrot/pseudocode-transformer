@@ -16,19 +16,19 @@ text_tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
 num_beams = int(sys.argv[2])
 
 f = open('tok-eval.tsv','r')
-i = 0
-for line in f:
+for i, line in enumerate(f):
     if i==0:
-        i += 1 
         continue
+    if i>1000:
+        break
     if i%100==0: 
-        print(metric.compute())
         print(i)
     src, tgt = line.strip('\n').split('\t')
     input_ids = torch.tensor(text_tokenizer.encode(src)).unsqueeze(0)
     generated = model.generate(input_ids, decoder_start_token_id=model.config.decoder.bos_token_id, num_beams=num_beams)
     translation = code_tokenizer.decode(generated.numpy()[0])
+    # print(tgt, translation)
     metric.add_batch(predictions=[translation],references=[[tgt]])
-    i += 1
 
+print(metric.compute())
 f.close()	
