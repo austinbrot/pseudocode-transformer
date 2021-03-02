@@ -476,7 +476,7 @@ def main():
         return result
 
     # Set up early stopping
-    stopper = EarlyStoppingCallback(5)
+    stopper = EarlyStoppingCallback(3)
 
     # Initialize our Trainer
     trainer = Seq2SeqTrainer(
