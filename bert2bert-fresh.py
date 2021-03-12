@@ -37,7 +37,8 @@ eval_data = dataset['eval'].map(
     load_from_cache_file=False
 )
 
-model = transformers.EncoderDecoderModel.from_encoder_decoder_pretrained('bert-base-uncased','./decoder-bert')
+#model = transformers.EncoderDecoderModel.from_encoder_decoder_pretrained('bert-base-uncased','./decoder-bert')
+model = transformers.EncoderDecoderModel.from_pretrained('./checkpoints-new/checkpoint-3000')
 print(model.num_parameters())
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
@@ -56,14 +57,14 @@ model.to(device)
 training_args = Seq2SeqTrainingArguments(
     predict_with_generate=True,
     evaluation_strategy="steps",
-    per_device_train_batch_size=1,
-    per_device_eval_batch_size=1,
+    per_device_train_batch_size=24,
+    per_device_eval_batch_size=24,
     fp16=True, 
-    output_dir="./checkpoints-new/",
-    logging_steps=5000,
-    save_steps=5000,
-    eval_steps=10000,
-    warmup_steps=2000,
+    output_dir="./checkpoints/",
+    logging_steps=4000,
+    save_steps=1000,
+    eval_steps=4000,
+    warmup_steps=100,
     save_total_limit=5,
 )
 
@@ -74,7 +75,7 @@ trainer = Seq2SeqTrainer(
     train_dataset=train_data,
     eval_dataset=eval_data,
 )
-trainer.train()
+trainer.train(resume_from_checkpoint='./checkpoints-new/checkpoint-3000')
 
 
 
