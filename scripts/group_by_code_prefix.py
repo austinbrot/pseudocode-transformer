@@ -43,7 +43,7 @@ def main():
                         outfile.write(json.dumps({ 'translation': { 'en': '[PRE] ' + prefix +  ' [PRED] ' + source , 'c++': target } }))
                         outfile.write('\n')
 
-                        code_pfx = code_pfx[-4:] + [target]
+                        code_pfx = code_pfx[-9:] + [target]
     sanitycheck_dataset(args.out_file, args.tokenized_in_file, comp)
 
 if __name__ == '__main__':
